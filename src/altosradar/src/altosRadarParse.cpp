@@ -64,9 +64,9 @@ float rcsCal(float range, float azi, float snr, float* rcsBuf)
 int main(int argc, char** argv)
 {
     float* rcsBuf = (float*)malloc(1201 * sizeof(float));
-    // FILE* fp_rcs = fopen("data//rcs.dat", "rb");
-    // fread(rcsBuf, 1021, sizeof(float), fp_rcs);
-    // fclose(fp_rcs);
+    FILE* fp_rcs = fopen("data//rcs.dat", "rb");
+    fread(rcsBuf, 1021, sizeof(float), fp_rcs);
+    fclose(fp_rcs);
 
     rclcpp::init(argc, argv);
     rclcpp::Node node("altosRadar");
@@ -162,9 +162,9 @@ int main(int argc, char** argv)
 
     gettimeofday(&tv, NULL);
     localtime_r(&tv.tv_sec, &tm);
-    // char filePath[1024];
-    // sprintf(filePath, "data//%d_%d_%d_%d_%d_%d_altos.dat", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-    // FILE* fp = fopen(filePath, "wb");
+    char filePath[1024];
+    sprintf(filePath, "data//%d_%d_%d_%d_%d_%d_altos.dat", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    FILE* fp = fopen(filePath, "wb");
     int frameId = 0;
     int objectCntFrame = 0;
     int i;
@@ -183,13 +183,13 @@ int main(int argc, char** argv)
     unsigned char modeFlag = 0;
     long tmpTime = pointCloudBuf.pckHeader.sec;
     int cntPointCloud[2] = { 0, 0 };
-    // FILE* fp_time = fopen("timeVal.txt", "wt");
+    FILE* fp_time = fopen("timeVal.txt", "wt");
     while (rclcpp::ok()) {
         originPub->publish(origin);
         ret = recvfrom(sockfd, recvBuf, 1440, 0, (struct sockaddr*)&from, &len);
         if (ret > 0) {
 
-            // fwrite(recvBuf, 1, ret, fp);
+            fwrite(recvBuf, 1, ret, fp);
 
             // printf("pointCloudBuf.pckHeader.objectCount = %d \tpckHeader.curObjNum = %d\n",pointCloudBuf.pckHeader.curObjInd,pointCloudBuf.pckHeader.curObjNum);
 
@@ -251,8 +251,6 @@ int main(int argc, char** argv)
                     }
                 }
                 if (modeFlag == 1 || tmp - frameId == 2) {
-
-                    // rclcpp::Duration(0.005).sleep();
                     std::chrono::duration<int, std::milli> s(5);
                     rclcpp::sleep_for(s);
                     pcl::toROSMsg(cloud, output);
@@ -282,7 +280,7 @@ int main(int argc, char** argv)
                     gettimeofday(&tv, NULL);
                     t1 = tv.tv_sec * 1000ll + tv.tv_usec / 1000;
                     localtime_r(&tmpTime, &tm);
-                    // fprintf(fp_time, "%f\n", t1 / 1e3);
+                    fprintf(fp_time, "%f\n", t1 / 1e3);
                 }
                 frameId = tmp;
                 for (int i = 0; i < pointCloudBuf.pckHeader.curObjNum; i++) {
@@ -308,7 +306,7 @@ int main(int argc, char** argv)
     }
     close(sockfd);
     free(histBuf);
-    // fclose(fp);
-    // fclose(fp_time);
+    fclose(fp);
+    fclose(fp_time);
     return 0;
 }
