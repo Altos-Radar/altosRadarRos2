@@ -47,7 +47,7 @@ float hist(float* vr, float* histBuf, float step, int vrInd) {
             continue;
         }
 
-        if (vr[i] <= 0 && vr[i] > -40) {
+        if (!(vr[i] > 0)) {
             histBuf[ind]++;
         }
     }
