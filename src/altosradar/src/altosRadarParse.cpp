@@ -1,8 +1,7 @@
 /*
  * @Copyright (C) 2024 by Altos Radar. All rights reserved.
  * @Author: altos
- * @Date: 2024-05-29 16:20:18
- * @Description:
+ * @Description: Altos Radar Driver
  */
 
 #include "altosradar/PointCloud.h"
@@ -12,7 +11,7 @@
 #include <errno.h>
 #include <geometry_msgs/msg/pose.hpp>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <netinet/in.h>
 #include <pcl/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
