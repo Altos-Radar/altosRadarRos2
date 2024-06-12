@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+# Python
+*.pyc
+*.pyo
+
+# Original Radar data
+*.dat
+
+build/*
+install/*
+log/*
+
