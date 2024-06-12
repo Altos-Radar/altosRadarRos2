@@ -80,6 +80,7 @@ RUN apt-get update && apt-get install -y \
 
 # ROS packages
 RUN apt-get update && apt-get install -y \
-    ros-humble-usb-cam 
+    ros-humble-usb-cam \
+    ros-humble-rosbag2-cpp
 
 # WORKDIR /home/altos/
