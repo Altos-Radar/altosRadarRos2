@@ -45,7 +45,7 @@ ament_target_dependencies(altosRadarParse
   pcl_conversions
 )
 
-target_link_libraries(altosRadarParse ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(altosRadarParse ${PCL_LIBRARIES})
 
 install(TARGETS
   altosRadarParse
