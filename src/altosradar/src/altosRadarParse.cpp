@@ -39,10 +39,8 @@ float hist(float* vr, float* histBuf, float step, int vrInd) {
 
     for (int i = 0; i < vrInd; i++) {
         int ind = (vr[i] - vrMin) / step;
-        // printf("ind = %d\n",i);
 
         if (vr[i] > 60 || vr[i] < -60 || isnan(vr[i])) {
-            // printf("vr[%d] = %f\n",ind,vr[i]);
             continue;
         }
 
@@ -51,9 +49,7 @@ float hist(float* vr, float* histBuf, float step, int vrInd) {
         }
     }
 
-    return std::distance(histBuf,
-                         std::max_element(histBuf, histBuf + bin_num)) *
-               step +
+    return distance(histBuf, max_element(histBuf, histBuf + bin_num)) * step +
            vrMin;
 }
 
@@ -118,7 +114,6 @@ int main(int argc, char** argv) {
 
     sensor_msgs::msg::PointCloud2 output;
     pcl::PointCloud<pcl::PointXYZHSV> cloud;
-    printf("---------------------------\n");
     cloud.width = widthSet * 2;
     cloud.height = 1;
     cloud.points.resize(cloud.width * cloud.height);
@@ -151,16 +146,14 @@ int main(int argc, char** argv) {
     }
 
     req.imr_multiaddr.s_addr = inet_addr("224.1.2.4");
-    req.imr_interface.s_addr = inet_addr(/*"0.0.0.0"*/ "192.168.3.1");
-    ;
+    req.imr_interface.s_addr = inet_addr("192.168.3.1");
+
     ret = setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &req, sizeof(req));
     if (ret < 0) {
         perror("setsockopt");
         return 0;
     }
 
-    // int recvFrameLen = 0;
-    // int frameNum = 0;
     int tmp;
     POINTCLOUD pointCloudBuf;
     char* recvBuf = (char*)&pointCloudBuf;
@@ -199,14 +192,6 @@ int main(int argc, char** argv) {
         if (ret > 0) {
             fwrite(recvBuf, 1, ret, fp);
 
-            // printf("pointCloudBuf.pckHeader.objectCount = %d
-            // \tpckHeader.curObjNum =
-            // %d\n",pointCloudBuf.pckHeader.curObjInd,pointCloudBuf.pckHeader.curObjNum);
-
-            // long tmpTime = pointCloudBuf.pckHeader.sec;
-            // localtime_r(&tmpTime, &tm);
-            // printf("%d_%d_%d_%d_%d_%d\n",tm.tm_year + 1900,tm.tm_mon +
-            // 1,tm.tm_mday,tm.tm_hour,tm.tm_min,pointCloudBuf.pckHeader.sec);
             pointCloudBuf.pckHeader.curObjNum =
                 pointCloudBuf.pckHeader.curObjNum / 44;
             objectCnt = pointCloudBuf.pckHeader.objectCount;
@@ -214,10 +199,7 @@ int main(int argc, char** argv) {
                 pointCloudBuf.pckHeader.curObjInd * 30;
             tmp = pointCloudBuf.pckHeader.frameId;
             modeFlag = tmp % 2;
-            // if(pointCloudBuf.pckHeader.mode==1)
-            // {
-            //     continue;
-            // }
+
             if (frameId == 0 || frameId == tmp) {
                 frameId = tmp;
                 for (i = 0; i < pointCloudBuf.pckHeader.curObjNum; i = i + 1) {
@@ -241,7 +223,6 @@ int main(int argc, char** argv) {
                             .y = (pointCloudBuf.point[i].range - offsetRange) *
                                  sin(pointCloudBuf.point[i].azi - offsetAzi) *
                                  cos(pointCloudBuf.point[i].ele);
-                        ;
                         cloud
                             .points[pointCloudBuf.pckHeader.curObjInd + i +
                                     widthSet * modeFlag]
@@ -260,8 +241,6 @@ int main(int argc, char** argv) {
                         vr[pointCloudBuf.pckHeader.curObjInd + i] =
                             pointCloudBuf.point[i].doppler /
                             cos(pointCloudBuf.point[i].azi - offsetAzi);
-                        // printf("ind =%d\t
-                        // %f\n",pointCloudBuf.pckHeader.curObjInd+i+widthSet*modeFlag,cos(pointCloudBuf.point[i].azi-offsetAzi));
 
                         vrAzi[pointCloudBuf.pckHeader.curObjInd + i] =
                             pointCloudBuf.point[i].azi;
@@ -271,8 +250,6 @@ int main(int argc, char** argv) {
                 vrInd = pointCloudBuf.pckHeader.curObjInd + POINTNUM;
                 objectCntFrame = pointCloudBuf.pckHeader.curObjInd + POINTNUM;
                 objectCntLast = objectCnt;
-                // cntFrameobj = cntFrameobj + 30;
-
             } else {
                 if (objectCntLast - cntFrameobj > POINTNUM) {
                     printf(
@@ -283,7 +260,6 @@ int main(int argc, char** argv) {
                         objectCntLast / POINTNUM);
                 }
                 memset(histBuf, 0, sizeof(float) * int((vrMax - vrMin) / step));
-                // printf("Frame %d: objectCnt is %d\n",frameId,objectCntLast);
                 vrEst = hist(vr, histBuf, step, vrInd);
                 printf("Frame %d: objectCnt is %d\n", frameId, cntFrameobj);
                 cntPointCloud[frameId % 2] = cntFrameobj;
@@ -349,13 +325,14 @@ int main(int argc, char** argv) {
                             .points[pointCloudBuf.pckHeader.curObjInd + i +
                                     widthSet * modeFlag]
                             .x = (pointCloudBuf.point[i].range - offsetRange) *
-                                 cos(pointCloudBuf.point[i].azi - offsetAzi);
+                                 cos(pointCloudBuf.point[i].azi - offsetAzi) *
+                                 cos(pointCloudBuf.point[i].ele);
                         cloud
                             .points[pointCloudBuf.pckHeader.curObjInd + i +
                                     widthSet * modeFlag]
                             .y = (pointCloudBuf.point[i].range - offsetRange) *
-                                 sin(pointCloudBuf.point[i].azi - offsetAzi);
-                        ;
+                                 sin(pointCloudBuf.point[i].azi - offsetAzi) *
+                                 cos(pointCloudBuf.point[i].ele);
                         cloud
                             .points[pointCloudBuf.pckHeader.curObjInd + i +
                                     widthSet * modeFlag]
