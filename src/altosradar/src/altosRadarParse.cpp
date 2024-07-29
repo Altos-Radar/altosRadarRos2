@@ -188,7 +188,8 @@ int main(int argc, char** argv) {
     FILE* fp_time = fopen("timeVal.txt", "wt");
     while (rclcpp::ok()) {
         originPub->publish(origin);
-        ret = recvfrom(sockfd, recvBuf, 1440, 0, (struct sockaddr*)&from, &len);
+        ret = recvfrom(sockfd, recvBuf, sizeof(POINTCLOUD), 0,
+                       (struct sockaddr*)&from, &len);
         if (ret > 0) {
             fwrite(recvBuf, 1, ret, fp);
 
