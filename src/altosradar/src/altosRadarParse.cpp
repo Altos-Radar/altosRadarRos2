@@ -56,10 +56,12 @@ float hist(float *vr, float *histBuf, float step, int vrInd) {
             // printf("vr[%d] = %f\n",ind,vr[i]);
             continue;
         }
+
         if (vr[i] <= 0 && vr[i] > -40) {
             histBuf[ind]++;
         }
     }
+
     return float(
                (max_element(histBuf, histBuf + (int((vrMax - vrMin) / step))) -
                 histBuf)) *
@@ -88,21 +90,21 @@ int main(int argc, char **argv) {
     origin.type = visualization_msgs::msg::Marker::SPHERE;
     origin.action = visualization_msgs::msg::Marker::ADD;
 
-    origin.pose.position.x = 0;
-    origin.pose.position.y = 0;
-    origin.pose.position.z = 0;
-    origin.pose.orientation.x = 0;
-    origin.pose.orientation.y = 0;
-    origin.pose.orientation.z = 0;
-    origin.pose.orientation.w = 1;
+    origin.pose.position.x = 0.;
+    origin.pose.position.y = 0.;
+    origin.pose.position.z = 0.;
+    origin.pose.orientation.x = 0.;
+    origin.pose.orientation.y = 0.;
+    origin.pose.orientation.z = 0.;
+    origin.pose.orientation.w = 1.;
 
-    origin.scale.x = 3;
-    origin.scale.y = 3;
-    origin.scale.z = 3;
-    origin.color.r = 1.0;
-    origin.color.g = 1.0;
-    origin.color.b = 0.0;
-    origin.color.a = 1;
+    origin.scale.x = 1.;
+    origin.scale.y = 1.;
+    origin.scale.z = 1.;
+    origin.color.r = 1.;
+    origin.color.g = 1.;
+    origin.color.b = 0.;
+    origin.color.a = 1.;
 
     visualization_msgs::msg::Marker marker;
     marker.ns = "basic_shapes";
@@ -110,19 +112,18 @@ int main(int argc, char **argv) {
     marker.pose.orientation.w = 1.0;
     marker.id = 0;
     marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
-    marker.scale.z = 10;
+    marker.scale.z = 1.;
     marker.color.b = 1.0f;
     marker.color.g = 1.0f;
     marker.color.r = 1.0f;
-    marker.color.a = 1;
+    marker.color.a = 1.;
     geometry_msgs::msg::Pose pose;
-    pose.position.x = -5.;
+    pose.position.x = -1.;
     pose.position.y = 0.;
     pose.position.z = 0.;
 
     sensor_msgs::msg::PointCloud2 output;
     pcl::PointCloud<pcl::PointXYZHSV> cloud;
-    printf("---------------------------\n");
     cloud.width = widthSet * 2;
     cloud.height = 1;
     cloud.points.resize(cloud.width * cloud.height);
@@ -314,6 +315,7 @@ int main(int argc, char **argv) {
                         cloud.points[i + widthSet * (frameId % 2) * 0].v = 0;
                     }
                 }
+
                 if (modeFlag == 0) {
                     std::chrono::duration<int, std::milli> s(5);
                     rclcpp::sleep_for(s);
@@ -346,7 +348,9 @@ int main(int argc, char **argv) {
                     localtime_r(&tmpTime, &tm);
                     fprintf(fp_time, "%f\n", t1 / 1e3);
                 }
+
                 frameId = tmp;
+
                 for (int i = 0; i < pointCloudBuf.pckHeader.curObjNum; i++) {
                     if (abs(pointCloudBuf.point[i].range) > 0) {
                         pointCloudBuf.point[i].ele =
